@@ -4806,13 +4806,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11968910621ec44faadf6fd43caecb31, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MaxHealth: 1
+  m_MaxHealth: 6
   m_Speed: 2
   m_Damage: 1
   m_DeathExplosion: {fileID: 1751476858793735223, guid: 5f7cbf55f3468d34f8f469877a079fbb,
     type: 3}
-  m_HealthPillDropRate: 0.5
-  m_HealthPill: {fileID: 5146312267660677510, guid: e95d1a664441c493ca7c7d7473748322,
+  m_PillDropRate: 0.5
+  m_DropItem: {fileID: 5146312267660677510, guid: e95d1a664441c493ca7c7d7473748322,
     type: 3}
   m_Score: 2
 --- !u!114 &1869612355

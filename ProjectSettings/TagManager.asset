@@ -10,6 +10,9 @@ TagManager:
   - AttackAbility
   - Enemy
   - Spawn
+  - Ground
+  - PowerUpPill
+  - ScorePill
   layers:
   - Default
   - TransparentFX

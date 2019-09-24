@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class EnemyController : MonoBehaviour
 {
@@ -23,16 +24,15 @@ public class EnemyController : MonoBehaviour
 
     [SerializeField]
     [Tooltip("Prob of dropping a pill")]
-    private float m_HealthPillDropRate;
+    private float m_PillDropRate;
 
     [SerializeField]
-    [Tooltip("explosion after enemy dies")]
-    private GameObject m_HealthPill;
+    [Tooltip("the item the enemy drops")]
+    private GameObject m_DropItem;
 
     [SerializeField]
     [Tooltip("ponits player gets")]
     private int m_Score;
-
     #endregion
 
     #region Private Variables
@@ -89,9 +89,9 @@ public class EnemyController : MonoBehaviour
         if (p_currHealth <= 0)
         {
             ScoreManager.singleton.IncreaseScore(m_Score);
-            if (Random.value < m_HealthPillDropRate)
+            if (Random.value < m_PillDropRate)
             {
-                Instantiate(m_HealthPill, transform.position, Quaternion.identity);
+                Instantiate(m_DropItem, transform.position, Quaternion.identity);
             }
             Instantiate(m_DeathExplosion, transform.position, Quaternion.identity);
             Destroy(gameObject);

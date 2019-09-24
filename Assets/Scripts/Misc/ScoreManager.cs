@@ -4,9 +4,15 @@ using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
+    #region Editor Variables
+    [SerializeField]
+    [Tooltip("HUD script")]
+    private HUDController m_HUD;
+    #endregion
+
     public static ScoreManager singleton;
 
-    #region Private vraiebles
+    #region Private variebles
     private int m_CurScore;
     #endregion
 
@@ -28,6 +34,7 @@ public class ScoreManager : MonoBehaviour
     public void IncreaseScore(int amount)
     {
         m_CurScore += amount;
+        UpdateScoreUI(m_CurScore);
     }
 
 
@@ -44,6 +51,11 @@ public class ScoreManager : MonoBehaviour
         {
             PlayerPrefs.SetInt("HS", m_CurScore);
         }
+    }
+
+    public void UpdateScoreUI(int amount)
+    {
+        m_HUD.UpdateScore(amount);
     }
     #endregion
 

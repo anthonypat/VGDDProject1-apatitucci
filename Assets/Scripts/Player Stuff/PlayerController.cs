@@ -15,6 +15,10 @@ public class PlayerController : MonoBehaviour
     private int m_MaxHealth;
 
     [SerializeField]
+    [Tooltip("how high the player can jump")]
+    private float m_jumpForce;
+
+    [SerializeField]
     [Tooltip("The transform of camera following the player")]
     private Transform m_CameraTransform;
 
@@ -45,33 +49,38 @@ public class PlayerController : MonoBehaviour
 
     //the default color cached so we can switch between colors
     private Color p_DefaultColor;
-    #endregion
+
+    //checks to see if we are currently grounded
+    private bool p_isGrounded;
+
+    //The current amount of extra damage we are doing
+    private float p_Multiplier;
+
+    //the vector we will use to jump
+    private Vector3 p_jump;
 
     //current amount of health 
     private float p_CurHealth;
+    #endregion
 
     #region Initialization
     private void Awake()
     {
         p_Velocity = Vector2.zero;
+        p_jump = new Vector3(0.0f, 1.0f, 0.0f);
         cc_Rb = GetComponent<Rigidbody>();
-        cr_Anim = GetComponent<Animator>();
         cr_Anim = GetComponent<Animator>();
         cr_Renderer = GetComponentInChildren<Renderer>();
         p_DefaultColor = cr_Renderer.material.color;
 
         p_FrozenTimer = 0;
         p_CurHealth = m_MaxHealth;
+        p_Multiplier = 1.0f;
 
         for (int i = 0; i < m_Attacks.Length; i++)
         {
             PlayerAttackInfo attack = m_Attacks[i];
             attack.Cooldown = 0;
-
-            if(attack.WindUpTime > attack.Cooldown)
-            {
-                Debug.LogError(attack.AttackName + "has windup time larger than the time the player is frozen for");
-            }
         }
     }
 
@@ -102,7 +111,7 @@ public class PlayerController : MonoBehaviour
             PlayerAttackInfo attack = m_Attacks[i];
             if (attack.IsReady())
             {
-                if (Input.GetButtonDown(attack.Button))
+                if (Input.GetButtonDown(attack.Button) && p_isGrounded)
                 {
                     p_FrozenTimer = attack.FrozenTime;
                     DecreaseHealth(attack.HealthCost);
@@ -146,7 +155,16 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         //update player position 
-        cc_Rb.MovePosition(cc_Rb.position + m_speed * Time.fixedDeltaTime * transform.forward * p_Velocity.magnitude);
+        if (Input.GetKeyDown(KeyCode.Space) && p_isGrounded)
+        {
+            cr_Anim.SetTrigger("Jump");
+            cc_Rb.AddForce(p_jump * m_jumpForce, ForceMode.Impulse);
+            p_isGrounded = false;
+        }
+        else if (p_isGrounded)
+        {
+            cc_Rb.MovePosition(cc_Rb.position + m_speed * Time.fixedDeltaTime * transform.forward * p_Velocity.magnitude);
+        }
 
         //update rotation of the player
         cc_Rb.angularVelocity = Vector3.zero;
@@ -198,7 +216,7 @@ public class PlayerController : MonoBehaviour
 
         Vector3 offset = transform.forward * attack.Offset.z + transform.right * attack.Offset.x + transform.up * attack.Offset.y;
         GameObject go = Instantiate(attack.AbilityGo, transform.position + offset, cc_Rb.rotation);
-        go.GetComponent<Ability>().Use(transform.position + offset);
+        go.GetComponent<Ability>().Use(transform.position + offset, p_Multiplier);
 
         StopCoroutine(toColor);
         StartCoroutine(ChangeColor(p_DefaultColor, 50));
@@ -219,6 +237,11 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
     }
+
+    public void IncreaseMultiplier(float amount)
+    {
+        p_Multiplier *= amount;
+    }
     #endregion
 
     #region Collision Methods
@@ -228,6 +251,26 @@ public class PlayerController : MonoBehaviour
         {
             IncreaseHealth(other.GetComponent<HealthPill>().HealthGain);
             Destroy(other.gameObject);
+        }
+        else if (other.CompareTag("PowerUpPill"))
+        {
+            IncreaseMultiplier(other.GetComponent<PowerUpPill>().DamageMultiplier);
+            m_HUD.UpdateMultiplier(p_Multiplier);
+            Destroy(other.gameObject);
+        }
+        else if (other.CompareTag("ScorePill"))
+        {
+            ScoreManager.singleton.IncreaseScore(other.GetComponent<ScorePill>().ScoreGain);
+            Destroy(other.gameObject);
+
+        }
+    }
+
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            p_isGrounded = true;
         }
     }
     #endregion

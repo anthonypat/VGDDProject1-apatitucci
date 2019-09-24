@@ -49,7 +49,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (PlayerPrefs.HasKey("HS"))
         {
-            m_HighScore.text = m_DefaultHighScoreText.Replace("%S", "0");
+            m_HighScore.text = m_DefaultHighScoreText.Replace("%S", PlayerPrefs.GetInt("HS").ToString());
         }
         else
         {

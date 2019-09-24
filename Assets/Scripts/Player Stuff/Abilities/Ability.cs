@@ -22,6 +22,6 @@ public abstract class Ability : MonoBehaviour
     #endregion
 
     #region Use Methods
-    public abstract void Use(Vector3 spawnPos);
+    public abstract void Use(Vector3 spawnPos, float multiplier);
     #endregion 
 }
